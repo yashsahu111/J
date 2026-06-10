@@ -1,88 +1,110 @@
-const poses = [
-  { name: "Top-Down Macro", prompt: "Macro shot of the ring from straight above, resting on a white glossy reflective surface, soft studio lighting" },
-  { name: "45-Degree Angle", prompt: "A 45-degree angled presentation shot of the ring, depth of the band visible, resting on clean dark slate stone" },
-  { name: "On Hand Model", prompt: "Elegant close-up shot of an elegant hand wearing the ring, soft focus out-of-focus background, natural luxury daylighting" },
-  { name: "Side Profile", prompt: "Side profile view of the ring showing the precise structural design of the crown stone setting, minimal studio background" },
-  { name: "Inside Velvet Box", prompt: "The ring elegantly nestled inside an open black luxury velvet jewelry box, dramatic macro spotlighting" },
-  { name: "Floating Creative", prompt: "Creative dynamic catalog shot of the ring floating slightly in mid-air against an ethereal, soft-lit luxury background" },
-  { name: "Marble Countertop", prompt: "High-end product showcase of the ring sitting on a white Carrara marble slab, bright natural morning sunlight" },
-  { name: "Outdoor Lifestyle", prompt: "The ring resting gently on a crisp sunlit leaf with tiny morning dew drops, organic environment, luxury bokeh" },
-  { name: "Water Reflection", prompt: "The ring resting perfectly on a still water glass surface with clean mirror reflection underneath, soft ambient blue mood" }
-];
+let masterImageBase64 = null;
+const slotsContainer = document.getElementById('slotsContainer');
+const masterImageInput = document.getElementById('masterImageInput');
+const masterPreview = document.getElementById('masterPreview');
+const startAutomationBtn = document.getElementById('startAutomationBtn');
 
-let targetImageSrc = null;
-const imageInput = document.getElementById('imageInput');
-const processBtn = document.getElementById('processBtn');
-const galleryGrid = document.getElementById('galleryGrid');
-const statusMessage = document.getElementById('statusMessage');
+// Automatically render the 9 custom configuration cards on screen
+for (let i = 1; i <= 9; i++) {
+    const card = document.createElement('div');
+    card.className = 'slot-card';
+    card.innerHTML = `
+        <div class="slot-title">Pose Slot #${i}</div>
+        <div class="input-group">
+            <label>1. Target Pose Image Reference (Optional)</label>
+            <input type="file" class="pose-file-input" data-slot="${i}" accept="image/*">
+            <div class="pose-preview-box" id="pose-preview-${i}">No reference image selected</div>
+        </div>
+        <div class="input-group">
+            <label>2. Pose & Environment Prompt Instruction</label>
+            <textarea class="pose-prompt-input" data-slot="${i}" rows="2" placeholder="Example: Top view, resting on white satin cloth, cinematic ambient light..."></textarea>
+        </div>
+        <div class="output-result-box" id="output-box-${i}">
+            <span style="color:#9ca3af; font-size:0.85rem;">Resulting image will render here</span>
+        </div>
+    `;
+    slotsContainer.appendChild(card);
+}
 
-imageInput.addEventListener('change', (e) => {
+// Handle Master Ring Image Upload
+masterImageInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = (event) => {
-            targetImageSrc = event.target.result;
-            processBtn.disabled = false;
-            statusMessage.innerText = "Base ring photo loaded successfully. Ready to run.";
+            masterImageBase64 = event.target.result.split(',')[1];
+            masterPreview.innerHTML = `<img src="${event.target.result}" />`;
+            checkValidationState();
         };
         reader.readAsDataURL(file);
     }
 });
 
-processBtn.addEventListener('click', async () => {
-    processBtn.disabled = true;
-    galleryGrid.innerHTML = '';
-    statusMessage.innerText = "Processing 9 poses concurrently. Please do not close this window...";
+// Handle the individual 9 pose reference layout images
+slotsContainer.addEventListener('change', (e) => {
+    if (e.target.classList.contains('pose-file-input')) {
+        const slotId = e.target.getAttribute('data-slot');
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const previewBox = document.getElementById(`pose-preview-${slotId}`);
+                previewBox.innerHTML = `<img src="${event.target.result}" data-base64="${event.target.result.split(',')[1]}" />`;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+});
 
-    // Run all 9 processing tasks in parallel streams
-    const tasks = poses.map(async (pose) => {
-        // Create an empty visual block representing a processing slot
-        const card = document.createElement('div');
-        card.className = 'pose-card';
-        card.innerHTML = `
-            <div class="placeholder-loading" id="loader-${pose.name.replace(/\s+/g, '')}" style="height:320px; display:flex; align-items:center; justify-content:center; background:#e9ecef; color:#6c757d; font-size:0.9rem;">Generating image...</div>
-            <div class="pose-info">
-                <div>
-                    <div class="pose-title">${pose.name}</div>
-                    <div class="pose-desc">${pose.prompt}</div>
-                </div>
-            </div>
-        `;
-        galleryGrid.appendChild(card);
+function checkValidationState() {
+    if (masterImageBase64) {
+        startAutomationBtn.disabled = false;
+    }
+}
+
+// Core Execution: Run the 9 Intelligent Tasks
+startAutomationBtn.addEventListener('click', async () => {
+    startAutomationBtn.disabled = true;
+    startAutomationBtn.innerText = "AI is thinking and processing...";
+
+    const promptInputs = document.querySelectorAll('.pose-prompt-input');
+    
+    const executionList = Array.from(promptInputs).map(async (textarea) => {
+        const slotId = textarea.getAttribute('data-slot');
+        const userPrompt = textarea.value.trim() || "Professional commercial catalog jewelry presentation shot";
+        const outputBox = document.getElementById(`output-box-${slotId}`);
+        
+        // Find if a style reference image exists for this slot
+        const uploadedPoseImgElement = document.querySelector(`#pose-preview-${slotId} img`);
+        const poseImageBase64 = uploadedPoseImgElement ? uploadedPoseImgElement.getAttribute('data-base64') : null;
+
+        outputBox.innerHTML = `<div style="color:#4f46e5; font-size:0.9rem;">AI processing slot #${slotId}...</div>`;
 
         try {
-            // Free API Execution Core: Image-to-Image pipeline
-            // Img2Img uses the original image context to force shape preservation
-            const outputImage = await puter.ai.txt2img(
-                `${pose.prompt}, highly detailed, professional product photography, 8k resolution, maintaining exact ring shape layout`, 
+            // Intelligent Model: Gemini 2.5 Flash Image Preview (Multimodal Context Engine)
+            // It parses the ring structure and maps it directly onto your custom prompt directions
+            const resultImage = await puter.ai.txt2img(
+                `A professional high-resolution image of the ring design layout provided in the master image context. Modify the scene to match this exact direction: ${userPrompt}. Maintain the item structure perfectly, pristine reflections, hyper-realistic photography.`,
                 {
-                    img: targetImageSrc,
-                    strength: 0.35, // Crucial: forces the AI to modify the background but preserve your exact ring structure
-                    negative_prompt: "deformed, low quality, altered gemstone layout, missing prongs, changed ring style, blurry"
+                    model: "gemini-2.5-flash-image-preview",
+                    input_image: masterImageBase64, // The master item
+                    input_image_mime_type: "image/png"
                 }
             );
 
-            // Replace loading text block with completed graphic result
-            const loader = document.getElementById(`loader-${pose.name.replace(/\s+/g, '')}`);
-            const finalImg = document.createElement('img');
-            finalImg.src = outputImage.src;
-            loader.replaceWith(finalImg);
+            // Print the rendered output cleanly to the specific UI block
+            outputBox.innerHTML = `
+                <img src="${resultImage.src}" />
+                <a href="${resultImage.src}" download="pose-${slotId}.png" class="download-btn">Download This Pose</a>
+            `;
 
-            // Append safe download pipeline link
-            const infoBlock = card.querySelector('.pose-info');
-            const dlLink = document.createElement('a');
-            dlLink.className = 'download-link';
-            dlLink.href = outputImage.src;
-            dlLink.download = `${pose.name.toLowerCase().replace(/\s+/g, '-')}.png`;
-            dlLink.innerText = "Download Pose Image";
-            infoBlock.appendChild(dlLink);
-
-        } catch (err) {
-            document.getElementById(`loader-${pose.name.replace(/\s+/g, '')}`).innerText = "Generation failed. Retrying...";
-            console.error(err);
+        } catch (error) {
+            console.error(error);
+            outputBox.innerHTML = `<div style="color:#ef4444; font-size:0.85rem;">Error occurred. Retrying pipeline...</div>`;
         }
     });
 
-    await Promise.all(tasks);
-    statusMessage.innerText = "All 9 ring poses generated successfully with zero script runtime faults!";
+    await Promise.all(executionList);
+    startAutomationBtn.disabled = false;
+    startAutomationBtn.innerText = "Run AI Thinking & Generation Engine";
 });
