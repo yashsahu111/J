@@ -5,7 +5,7 @@ const ringFile = document.getElementById('ringFile');
 const previewArea = document.getElementById('previewArea');
 const promptText = document.getElementById('promptText');
 const runEngineBtn = document.getElementById('runEngineBtn');
-const gridOutput = document.getElementById('outputGrid');
+const gridOutput = document.getElementById('gridOutput');
 const globalStatus = document.getElementById('globalStatus');
 
 // Monitor when you add your single target ring photo
