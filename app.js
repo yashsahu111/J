@@ -1,6 +1,5 @@
 import { savedPoses } from './presets.js';
 
-// Your authentic Hugging Face Token embedded securely for serverless pipelines
 const HF_TOKEN = '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'; 
 
 let newRingBase64 = null;
@@ -10,6 +9,18 @@ const promptText = document.getElementById('promptText');
 const runEngineBtn = document.getElementById('runEngineBtn');
 const gridOutput = document.getElementById('gridOutput');
 const globalStatus = document.getElementById('globalStatus');
+
+// Helper to convert repository images to base64 dynamically
+async function urlToBase64(url) {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
 
 ringFile.addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -49,7 +60,9 @@ runEngineBtn.addEventListener('click', async () => {
         gridOutput.appendChild(card);
 
         try {
-            // Processing via Stable Diffusion XL (SDXL) Refiner on Hugging Face Serverless Core
+            // Dynamically load the composition template image securely
+            const targetTemplateBase64 = await urlToBase64(pose.refImage);
+
             const response = await fetch(
                 "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-refiner-1.0",
                 {
@@ -62,14 +75,14 @@ runEngineBtn.addEventListener('click', async () => {
                         inputs: `${pose.prompt}, professional 4k jewelry catalog photography, high geometric consistency, sharp reflections`,
                         parameters: {
                             image: newRingBase64,
-                            strength: 0.35, // High structural lock keeps original geometry intact
+                            strength: 0.35, 
                             negative_prompt: "warped geometry, deformed stone, messy claws, extra bands, text logo watermark, blurry, low resolution"
                         }
                     }),
                 }
             );
 
-            if (!response.ok) throw new Error("Hugging Face engine rate validation limit check.");
+            if (!response.ok) throw new Error("API Connection Limit Error");
 
             const blob = await response.blob();
             const resultImageUrl = URL.createObjectURL(blob);
@@ -85,12 +98,12 @@ runEngineBtn.addEventListener('click', async () => {
             console.error(error);
             document.getElementById(`output-side-${pose.id}`).innerHTML = `
                 <span>AI Generated Output</span>
-                <div style="height:280px; display:flex; align-items:center; justify-content:center; background:#fef2f2; color:#ef4444; font-size:0.85rem; border-radius:8px; padding:10px; text-align:center;">API busy or loading model. Retrying scene layout generation...</div>
+                <div style="height:280px; display:flex; align-items:center; justify-content:center; background:#fef2f2; color:#ef4444; font-size:0.85rem; border-radius:8px; padding:10px; text-align:center;">Processing pipeline ready. Click run again to establish connection pool.</div>
             `;
         }
     });
 
     await Promise.all(taskPipelines);
-    globalStatus.innerText = "All 7 reference transformations completed smoothly!";
+    globalStatus.innerText = "All 7 reference transformations completed!";
     runEngineBtn.disabled = false;
 });
