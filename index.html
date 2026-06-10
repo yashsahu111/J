@@ -3,30 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Jewelry Pose Automator</title>
+    <title>AI Dynamic Jewelry Studio</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Jewelry Multi-Pose Automation</h1>
-            <p>Upload 1 ring photo to instantly generate 9 distinct studio environments and poses.</p>
+            <h1>AI Dynamic Jewelry Studio</h1>
+            <p>Upload your master ring, define your 9 custom target poses, and let the AI think and generate.</p>
         </header>
 
-        <main>
-            <div class="upload-section">
-                <input type="file" id="imageInput" accept="image/*">
-                <label for="imageInput" class="btn-upload">Choose Ring Photo</label>
-                <button id="processBtn" class="btn-run" disabled>Generate All 9 Poses</button>
-            </div>
+        <div class="master-upload-box">
+            <h3>1. Upload Master Ring Photo</h3>
+            <input type="file" id="masterImageInput" accept="image/*">
+            <label for="masterImageInput" class="btn-master">Select Original Ring Image</label>
+            <div id="masterPreview"></div>
+        </div>
 
-            <div id="statusMessage" class="status-msg"></div>
+        <h3>2. Configure Your 9 Target Poses</h3>
+        <div id="slotsContainer" class="slots-grid"></div>
 
-            <div id="galleryGrid" class="gallery-grid">
-                <!-- 9 Generation slots will dynamically load here -->
-            </div>
-        </main>
+        <div class="action-bar">
+            <button id="startAutomationBtn" class="btn-run" disabled>Run AI Thinking & Generation Engine</button>
+        </div>
     </div>
+
     <script src="https://js.puter.com/v2/"></script>
     <script type="module" src="app.js"></script>
 </body>
