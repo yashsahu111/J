@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Jewelry Pose Automator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Jewelry Multi-Pose Automation</h1>
+            <p>Upload 1 ring photo to instantly generate 9 distinct studio environments and poses.</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <input type="file" id="imageInput" accept="image/*">
+                <label for="imageInput" class="btn-upload">Choose Ring Photo</label>
+                <button id="processBtn" class="btn-run" disabled>Generate All 9 Poses</button>
+            </div>
+
+            <div id="statusMessage" class="status-msg"></div>
+
+            <div id="galleryGrid" class="gallery-grid">
+                <!-- 9 Generation slots will dynamically load here -->
+            </div>
+        </main>
+    </div>
+    <script src="https://js.puter.com/v2/"></script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
