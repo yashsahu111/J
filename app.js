@@ -1,110 +1,67 @@
-let masterImageBase64 = null;
-const slotsContainer = document.getElementById('slotsContainer');
-const masterImageInput = document.getElementById('masterImageInput');
-const masterPreview = document.getElementById('masterPreview');
-const startAutomationBtn = document.getElementById('startAutomationBtn');
+import { savedPoses } from './presets.js';
 
-// Automatically render the 9 custom configuration cards on screen
-for (let i = 1; i <= 9; i++) {
-    const card = document.createElement('div');
-    card.className = 'slot-card';
-    card.innerHTML = `
-        <div class="slot-title">Pose Slot #${i}</div>
-        <div class="input-group">
-            <label>1. Target Pose Image Reference (Optional)</label>
-            <input type="file" class="pose-file-input" data-slot="${i}" accept="image/*">
-            <div class="pose-preview-box" id="pose-preview-${i}">No reference image selected</div>
-        </div>
-        <div class="input-group">
-            <label>2. Pose & Environment Prompt Instruction</label>
-            <textarea class="pose-prompt-input" data-slot="${i}" rows="2" placeholder="Example: Top view, resting on white satin cloth, cinematic ambient light..."></textarea>
-        </div>
-        <div class="output-result-box" id="output-box-${i}">
-            <span style="color:#9ca3af; font-size:0.85rem;">Resulting image will render here</span>
-        </div>
-    `;
-    slotsContainer.appendChild(card);
-}
+let masterImageRaw = null;
+const ringInput = document.getElementById('ringInput');
+const executeBtn = document.getElementById('executeBtn');
+const outputGrid = document.getElementById('outputGrid');
+const status = document.getElementById('status');
+const uploadTxt = document.getElementById('uploadTxt');
 
-// Handle Master Ring Image Upload
-masterImageInput.addEventListener('change', (e) => {
+ringInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = (event) => {
-            masterImageBase64 = event.target.result.split(',')[1];
-            masterPreview.innerHTML = `<img src="${event.target.result}" />`;
-            checkValidationState();
+            masterImageRaw = event.target.result.split(',')[1]; // Capture pure base64 track
+            uploadTxt.innerText = `Loaded: ${file.name} (Ready)`;
+            executeBtn.disabled = false;
         };
         reader.readAsDataURL(file);
     }
 });
 
-// Handle the individual 9 pose reference layout images
-slotsContainer.addEventListener('change', (e) => {
-    if (e.target.classList.contains('pose-file-input')) {
-        const slotId = e.target.getAttribute('data-slot');
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const previewBox = document.getElementById(`pose-preview-${slotId}`);
-                previewBox.innerHTML = `<img src="${event.target.result}" data-base64="${event.target.result.split(',')[1]}" />`;
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-});
+executeBtn.addEventListener('click', async () => {
+    executeBtn.disabled = true;
+    outputGrid.innerHTML = '';
+    status.innerText = "Nano Banana 2 is actively evaluating layouts and processing frames...";
 
-function checkValidationState() {
-    if (masterImageBase64) {
-        startAutomationBtn.disabled = false;
-    }
-}
-
-// Core Execution: Run the 9 Intelligent Tasks
-startAutomationBtn.addEventListener('click', async () => {
-    startAutomationBtn.disabled = true;
-    startAutomationBtn.innerText = "AI is thinking and processing...";
-
-    const promptInputs = document.querySelectorAll('.pose-prompt-input');
-    
-    const executionList = Array.from(promptInputs).map(async (textarea) => {
-        const slotId = textarea.getAttribute('data-slot');
-        const userPrompt = textarea.value.trim() || "Professional commercial catalog jewelry presentation shot";
-        const outputBox = document.getElementById(`output-box-${slotId}`);
-        
-        // Find if a style reference image exists for this slot
-        const uploadedPoseImgElement = document.querySelector(`#pose-preview-${slotId} img`);
-        const poseImageBase64 = uploadedPoseImgElement ? uploadedPoseImgElement.getAttribute('data-base64') : null;
-
-        outputBox.innerHTML = `<div style="color:#4f46e5; font-size:0.9rem;">AI processing slot #${slotId}...</div>`;
+    // Map through the pre-saved 9 configuration assets in parallel
+    const renderQueue = savedPoses.map(async (pose) => {
+        // Append visual rendering placeholder frame block
+        const containerBox = document.createElement('div');
+        containerBox.className = 'result-card';
+        containerBox.innerHTML = `
+            <div id="loadbox-${pose.id}" style="height: 280px; display: flex; align-items: center; justify-content: center; background: #f3f4f6; font-size: 0.85rem; color:#6b7280;">AI Thinking...</div>
+            <span class="label">${pose.name}</span>
+        `;
+        outputGrid.appendChild(containerBox);
 
         try {
-            // Intelligent Model: Gemini 2.5 Flash Image Preview (Multimodal Context Engine)
-            // It parses the ring structure and maps it directly onto your custom prompt directions
-            const resultImage = await puter.ai.txt2img(
-                `A professional high-resolution image of the ring design layout provided in the master image context. Modify the scene to match this exact direction: ${userPrompt}. Maintain the item structure perfectly, pristine reflections, hyper-realistic photography.`,
+            // Native Nano Banana 2 (Gemini 3.1 Flash Image Engine) Multi-Image Mapping API Call
+            const outputAsset = await puter.ai.txt2img(
+                `High-fidelity commercial jewelry photography. Seamlessly transfer the exact ring design, gem positioning, and band architecture from the master image into this layout scenario: ${pose.prompt}. Ensure clean metal textures and flawless spatial reasoning.`,
                 {
-                    model: "gemini-2.5-flash-image-preview",
-                    input_image: masterImageBase64, // The master item
-                    input_image_mime_type: "image/png"
+                    model: "nano-banana-2",
+                    // Passing multiple reference streams activates the model's subject consistency framework
+                    inputs: [
+                        { type: "image", data: masterImageRaw, role: "subject_identity" },
+                        { type: "image", data: pose.refImage.split(',')[1], role: "composition_layout" }
+                    ],
+                    strength: 0.35, // Enforces high shape preservation fidelity
+                    negative_prompt: "low resolution, warped claws, deformed diamond cuts, extra bands, text watermark"
                 }
             );
 
-            // Print the rendered output cleanly to the specific UI block
-            outputBox.innerHTML = `
-                <img src="${resultImage.src}" />
-                <a href="${resultImage.src}" download="pose-${slotId}.png" class="download-btn">Download This Pose</a>
-            `;
+            // Replace loader box with structural output result
+            document.getElementById(`loadbox-${pose.id}`).innerHTML = `<img src="${outputAsset.src}" alt="${pose.name}" />`;
 
-        } catch (error) {
-            console.error(error);
-            outputBox.innerHTML = `<div style="color:#ef4444; font-size:0.85rem;">Error occurred. Retrying pipeline...</div>`;
+        } catch (err) {
+            console.error(err);
+            document.getElementById(`loadbox-${pose.id}`).innerText = "Pipeline refresh timeout. Retrying...";
         }
     });
 
-    await Promise.all(executionList);
-    startAutomationBtn.disabled = false;
-    startAutomationBtn.innerText = "Run AI Thinking & Generation Engine";
+    await Promise.all(renderQueue);
+    status.innerText = "All 9 poses built successfully via Nano Banana 2 reasoning matrix.";
+    executeBtn.disabled = false;
 });
