@@ -8,14 +8,13 @@ const runEngineBtn = document.getElementById('runEngineBtn');
 const gridOutput = document.getElementById('gridOutput');
 const globalStatus = document.getElementById('globalStatus');
 
-// Monitor when you add your single target ring photo
 ringFile.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = (event) => {
-            newRingBase64 = event.target.result.split(',')[1]; // Strip headers for raw channel data
-            promptText.innerText = "Ring target recognized successfully!";
+            newRingBase64 = event.target.result.split(',')[1];
+            promptText.innerText = "Target product ring loaded successfully!";
             previewArea.innerHTML = `<img src="${event.target.result}" />`;
             runEngineBtn.disabled = false;
         };
@@ -23,56 +22,61 @@ ringFile.addEventListener('change', (e) => {
     }
 });
 
-// Automation Execution Controller
 runEngineBtn.addEventListener('click', async () => {
     runEngineBtn.disabled = true;
     gridOutput.innerHTML = '';
-    globalStatus.innerText = "Nano Banana 2 is evaluating compositions and spatial physics...";
+    globalStatus.innerText = "Nano Banana 2 is executing strict spatial mapping sequences...";
 
-    // Run the 9 conversions in parallel using separate execution tracks
     const taskPipelines = savedPoses.map(async (pose) => {
-        // Build the layout placeholder container card immediately
         const card = document.createElement('div');
         card.className = 'pose-box';
         card.innerHTML = `
-            <div id="spinner-${pose.id}" style="height:300px; display:flex; align-items:center; justify-content:center; background:#f9fafb; color:#4f46e5; font-size:0.9rem; font-weight:500;">AI Thinking Pass...</div>
             <span class="pose-meta">${pose.name}</span>
+            <div class="split-view">
+                <div class="view-panel">
+                    <span>Target Layout Template</span>
+                    <img src="${pose.refImage}" />
+                </div>
+                <div class="view-panel" id="output-side-${pose.id}">
+                    <span>AI Generated Output</span>
+                    <div style="height:280px; display:flex; align-items:center; justify-content:center; background:#f8fafc; color:#4f46e5; font-size:0.9rem; font-weight:500; border-radius:8px; border:1px dashed #cbd5e1;">Processing Canvas...</div>
+                </div>
+            </div>
         `;
         gridOutput.appendChild(card);
 
         try {
-            // Direct API call utilizing Nano Banana 2 Multi-Frame Context Layer
+            // Multi-Frame Input Consistency Pipeline via Nano Banana 2 Model
             const generationResult = await puter.ai.txt2img(
-                `High-end luxury commercial jewelry product photography. Seamlessly extract the structural identity, gemstone facets, and metal materials of the item in the subject reference image, and place it perfectly into this exact layout arrangement and environment: ${pose.prompt}. Sharp focus, clear reflections, no shape distortion.`,
+                `${pose.prompt}, 4k resolution, hyper-detailed jewelry photography, perfect edge tracking, crisp reflections.`,
                 {
                     model: "nano-banana-2", 
                     inputs: [
-                        { type: "image", data: newRingBase64, role: "subject_identity" },
-                        { type: "image", data: pose.refImage.split(',')[1], role: "composition_layout" }
+                        { type: "image", data: newRingBase64, role: "subject_identity" }, // Input A: Your Ring
+                        { type: "image", data: pose.refImage.split(',')[1], role: "composition_layout" } // Input B: Target Template
                     ],
-                    strength: 0.35, // Low shift threshold ensures the fine geometry of your ring is locked down
-                    negative_prompt: "warped band, missing prongs, changed stone configuration, asymmetrical, low-res"
+                    strength: 0.35, // High structural lock keeps the geometry identical to source image
+                    negative_prompt: "warped geometry, asymmetrical band, distorted stone, extra gems, low quality text"
                 }
             );
 
-            // Output the finalized graphic to its slot frame
-            document.getElementById(`spinner-${pose.id}`).innerHTML = `<img src="${generationResult.src}" />`;
-            
-            // Append instant download tool
-            const dl = document.createElement('a');
-            dl.className = 'dl-btn';
-            dl.href = generationResult.src;
-            dl.download = `rendered-${pose.name.toLowerCase().replace(/\s+/g, '-')}.png`;
-            dl.innerText = "Download Clear Image";
-            card.appendChild(dl);
+            const outputSide = document.getElementById(`output-side-${pose.id}`);
+            outputSide.innerHTML = `
+                <span>AI Generated Output</span>
+                <img src="${generationResult.src}" style="object-fit: cover;" />
+                <a href="${generationResult.src}" download="pose-${pose.id}.png" class="dl-btn">Download 4K Render</a>
+            `;
 
         } catch (error) {
             console.error(error);
-            document.getElementById(`spinner-${pose.id}`).innerText = "Pipeline processing timeout. Retrying...";
+            document.getElementById(`output-side-${pose.id}`).innerHTML = `
+                <span>AI Generated Output</span>
+                <div style="height:280px; display:flex; align-items:center; justify-content:center; background:#fef2f2; color:#ef4444; font-size:0.85rem; border-radius:8px;">Execution interface failure. Check base64 code string.</div>
+            `;
         }
     });
 
     await Promise.all(taskPipelines);
-    globalStatus.innerText = "All 9 Nano Banana 2 rendering routines finished successfully!";
+    globalStatus.innerText = "All 7 custom reference transformations generated successfully!";
     runEngineBtn.disabled = false;
 });
