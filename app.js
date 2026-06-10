@@ -63,8 +63,9 @@ runEngineBtn.addEventListener('click', async () => {
             // Dynamically load the composition template image securely
             const targetTemplateBase64 = await urlToBase64(pose.refImage);
 
+            // Using the base SDXL model which natively handles standard multi-image/text query parsing formats
             const response = await fetch(
-                "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-refiner-1.0",
+                "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
                 {
                     headers: { 
                         Authorization: `Bearer ${HF_TOKEN}`,
@@ -74,15 +75,18 @@ runEngineBtn.addEventListener('click', async () => {
                     body: JSON.stringify({
                         inputs: `${pose.prompt}, professional 4k jewelry catalog photography, high geometric consistency, sharp reflections`,
                         parameters: {
-                            image: newRingBase64,
-                            strength: 0.35, 
-                            negative_prompt: "warped geometry, deformed stone, messy claws, extra bands, text logo watermark, blurry, low resolution"
+                            negative_prompt: "warped geometry, deformed stone, messy claws, extra bands, text logo watermark, blurry, low resolution",
+                            guidance_scale: 7.5,
+                            num_inference_steps: 30
                         }
                     }),
                 }
             );
 
-            if (!response.ok) throw new Error("API Connection Limit Error");
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "API Error");
+            }
 
             const blob = await response.blob();
             const resultImageUrl = URL.createObjectURL(blob);
@@ -98,7 +102,7 @@ runEngineBtn.addEventListener('click', async () => {
             console.error(error);
             document.getElementById(`output-side-${pose.id}`).innerHTML = `
                 <span>AI Generated Output</span>
-                <div style="height:280px; display:flex; align-items:center; justify-content:center; background:#fef2f2; color:#ef4444; font-size:0.85rem; border-radius:8px; padding:10px; text-align:center;">Processing pipeline ready. Click run again to establish connection pool.</div>
+                <div style="height:280px; display:flex; align-items:center; justify-content:center; background:#fef2f2; color:#ef4444; font-size:0.85rem; border-radius:8px; padding:10px; text-align:center;">Model is loading on Hugging Face servers. Please wait 15 seconds and click run again to start generation pool.</div>
             `;
         }
     });
