@@ -1,19 +1,21 @@
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-body { background: #f8f9fa; color: #212529; padding: 40px 20px; }
-.container { max-width: 1200px; margin: 0 auto; }
-header { text-align: center; margin-bottom: 40px; }
-h1 { font-weight: 700; font-size: 2.2rem; margin-bottom: 10px; }
-.upload-section { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; margin-bottom: 40px; }
-input[type="file"] { display: none; }
-.btn-upload { background: #e9ecef; padding: 12px 24px; border-radius: 6px; cursor: pointer; display: inline-block; font-weight: 500; margin-right: 15px; transition: background 0.2s; }
-.btn-upload:hover { background: #dee2e6; }
-.btn-run { background: #007bff; color: white; padding: 12px 28px; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; transition: opacity 0.2s; }
-.btn-run:disabled { opacity: 0.5; cursor: not-allowed; }
-.status-msg { text-align: center; font-weight: 500; color: #6c757d; margin-bottom: 20px; }
-.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
-.pose-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-.pose-card img { width: 100%; height: 320px; object-fit: cover; background: #e9ecef; }
-.pose-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-.pose-title { font-weight: 600; margin-bottom: 5px; font-size: 1.1rem; }
-.pose-desc { font-size: 0.85rem; color: #6c757d; margin-bottom: 15px; line-height: 1.4; }
-.download-link { background: #28a745; color: white; text-decoration: none; text-align: center; padding: 8px; border-radius: 4px; font-size: 0.9rem; font-weight: 500; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+body { background: #f3f4f6; color: #1f2937; padding: 30px 15px; }
+.container { max-width: 1400px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 30px; }
+.master-upload-box { background: white; padding: 25px; border-radius: 12px; text-align: center; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+.btn-master { background: #4f46e5; color: white; padding: 12px 24px; border-radius: 6px; cursor: pointer; display: inline-block; font-weight: 600; margin-top: 10px; }
+#masterPreview img { max-height: 150px; margin-top: 15px; border-radius: 8px; border: 2px dashed #ccc; }
+.slots-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; }
+.slot-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #e5e7eb; }
+.slot-title { font-weight: 700; color: #374151; margin-bottom: 12px; font-size: 1.1rem; }
+.input-group { margin-bottom: 12px; }
+.input-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #6b7280; margin-bottom: 4px; }
+.input-group text, textarea { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.9rem; resize: none; }
+.pose-preview-box { height: 100px; background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: #9ca3af; overflow: hidden; margin-top: 8px; }
+.pose-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+.action-bar { text-align: center; margin-top: 40px; }
+.btn-run { background: #10b981; color: white; padding: 16px 40px; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: 700; cursor: pointer; width: 100%; max-width: 400px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+.btn-run:disabled { background: #9ca3af; box-shadow: none; cursor: not-allowed; }
+.output-result-box { margin-top: 15px; border-top: 1px solid #f3f4f6; padding-top: 15px; text-align: center; }
+.output-result-box img { width: 100%; height: 260px; object-fit: contain; background: #fafafa; border-radius: 6px; }
+.download-btn { display: inline-block; background: #2563eb; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; margin-top: 10px; font-weight: 600; }
